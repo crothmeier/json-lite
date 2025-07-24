@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  json-lite:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8000/health || exit 1"]
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
