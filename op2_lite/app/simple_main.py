@@ -13,18 +13,9 @@ logger = logging.getLogger(__name__)
 request_counter = Counter("json_requests_total", "Total JSON uploads")
 process_duration = Histogram("json_process_seconds", "Time spent processing")
 
-try:
-    import redis
-    redis_client = redis.Redis(host="redis", port=6379, socket_connect_timeout=1)
-    redis_client.ping()
-    REDIS_AVAILABLE = True
-except:
-    redis_client = None
-    REDIS_AVAILABLE = False
-
 @app.get("/health", tags=["ops"])
 def health():
-    return {"status": "healthy", "redis": REDIS_AVAILABLE}
+    return {"status": "healthy"}
 
 @app.get("/metrics", tags=["ops"])
 def metrics():

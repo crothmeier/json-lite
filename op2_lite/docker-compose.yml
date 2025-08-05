@@ -9,7 +9,3 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8000/health || exit 1"]
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
