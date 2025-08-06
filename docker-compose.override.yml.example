@@ -1,0 +1,68 @@
+# Docker Compose Override for Development
+# Copy this file to docker-compose.override.yml for local development
+
+version: "3.9"
+
+services:
+  op1-large:
+    build:
+      args:
+        PYTHON_VERSION: "3.11"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    volumes:
+      # Mount source code for live editing
+      - ./op1_large:/app/op1_large:ro
+      - ./shared:/app/shared:ro
+      # Mount data directory
+      - ./data:/app/data:ro
+      - ./output/op1:/app/output
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - PYTHONDEBUG=1
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+  op2-lite:
+    build:
+      args:
+        PYTHON_VERSION: "3.11"
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    volumes:
+      # Mount source code for live editing
+      - ./op2_lite/app:/app/op2_lite/app:ro
+      - ./shared:/app/shared:ro
+      - ./output/op2:/app/output
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true  # Enable auto-reload for FastAPI
+    command: uvicorn op2_lite.app.simple_main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/op2_lite
+    ports:
+      - "8000:8000"
+      - "8001:8001"  # Debug port
+
+  # Development database (if needed in future)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     POSTGRES_USER: jsonlite
+  #     POSTGRES_PASSWORD: devpassword
+  #     POSTGRES_DB: jsonlite_dev
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+
+  # Development Redis (if needed for caching)
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   command: redis-server --appendonly yes
+
+# volumes:
+#   postgres_data:

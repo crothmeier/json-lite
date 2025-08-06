@@ -1,0 +1,85 @@
+version: "3.9"
+
+services:
+  # OP1 Large - Manual Processor for large JSON files
+  op1-large:
+    build:
+      context: .
+      dockerfile: op1_large/Dockerfile
+    container_name: json-lite-op1-large
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data:ro  # Input data directory (read-only)
+      - ./output/op1:/app/output  # Output directory
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JSON_BACKEND=yajl2_c  # Use optimized yajl2_c backend
+    networks:
+      - json-lite-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+  # OP2 Lite - FastAPI Service
+  op2-lite:
+    build:
+      context: .
+      dockerfile: op2_lite/Dockerfile
+    container_name: json-lite-op2-lite
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output/op2:/app/output  # Output directory
+    environment:
+      - PYTHONUNBUFFERED=1
+      - JSON_BACKEND=yajl2_c  # Use optimized yajl2_c backend
+      - WORKERS=4  # Number of uvicorn workers
+    networks:
+      - json-lite-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Prometheus for monitoring (can be removed if not needed)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: json-lite-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - json-lite-network
+    profiles:
+      - monitoring  # Only starts with --profile monitoring
+
+networks:
+  json-lite-network:
+    driver: bridge
+    name: json-lite-network
+
+volumes:
+  prometheus_data:
+    driver: local
