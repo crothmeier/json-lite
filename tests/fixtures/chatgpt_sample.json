@@ -1,0 +1,72 @@
+[
+  {
+    "id": "conv-123abc",
+    "title": "Sample Conversation about Python",
+    "create_time": 1704067200,
+    "mapping": {
+      "msg-1": {
+        "parent": null,
+        "children": ["msg-2"],
+        "message": {
+          "author": {"role": "system"},
+          "content": {"parts": ["You are a helpful assistant."]}
+        }
+      },
+      "msg-2": {
+        "parent": "msg-1",
+        "children": ["msg-3"],
+        "message": {
+          "author": {"role": "user"},
+          "content": {"parts": ["How do I read a JSON file in Python?"]}
+        }
+      },
+      "msg-3": {
+        "parent": "msg-2",
+        "children": ["msg-4"],
+        "message": {
+          "author": {"role": "assistant"},
+          "content": {"parts": ["To read a JSON file in Python, you can use the `json` module:\n\n```python\nimport json\n\nwith open('data.json', 'r') as file:\n    data = json.load(file)\n```"]}
+        }
+      },
+      "msg-4": {
+        "parent": "msg-3",
+        "children": [],
+        "message": {
+          "author": {"role": "user"},
+          "content": {"parts": ["Thanks! How about writing JSON?"]}
+        }
+      }
+    }
+  },
+  {
+    "id": "conv-456def",
+    "title": "JavaScript Questions",
+    "create_time": 1704153600,
+    "mapping": {
+      "msg-a1": {
+        "parent": null,
+        "children": ["msg-a2"],
+        "message": {
+          "author": {"role": "system"},
+          "content": {"parts": ["You are a helpful coding assistant."]}
+        }
+      },
+      "msg-a2": {
+        "parent": "msg-a1",
+        "children": ["msg-a3"],
+        "message": {
+          "author": {"role": "user"},
+          "content": {"parts": ["What is a promise in JavaScript?"]}
+        }
+      },
+      "msg-a3": {
+        "parent": "msg-a2",
+        "children": [],
+        "message": {
+          "author": {"role": "assistant"},
+          "content": {"parts": ["A Promise in JavaScript is an object representing the eventual completion or failure of an asynchronous operation."]}
+        }
+      }
+    }
+  }
+]

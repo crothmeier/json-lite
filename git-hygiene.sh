@@ -26,6 +26,17 @@ find . -type f -name "*.pyc" -delete
 
 echo "✅ Clean complete"
 
+# Run tests for ChatGPT extractor
+echo ""
+echo "Running ChatGPT extractor tests..."
+if [ -f "tests/test_chatgpt_extractor.py" ]; then
+    python -m pytest tests/test_chatgpt_extractor.py -v --no-header --tb=short || {
+        echo "⚠️  ChatGPT extractor tests failed"
+    }
+else
+    echo "⚠️  ChatGPT extractor tests not found"
+fi
+
 # Function to install pre-commit hooks
 install_hooks() {
     echo ""
