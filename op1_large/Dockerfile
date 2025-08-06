@@ -1,4 +1,4 @@
-# Multi-stage build for op2_lite
+# Multi-stage build for op1_large
 ARG PYTHON_VERSION=3.11
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -17,7 +17,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy and install requirements first for better caching
-COPY op2_lite/requirements.txt /tmp/requirements.txt
+COPY op1_large/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
@@ -28,7 +28,6 @@ FROM python:${PYTHON_VERSION}-slim
 # Install runtime dependencies for yajl2_c
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libyajl2 \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user with configurable UID/GID
@@ -47,13 +46,13 @@ WORKDIR /app
 # Copy shared directory (actual files, not symlinks)
 COPY shared/ /app/shared/
 
-# Copy op2_lite application code
-COPY op2_lite/app/ /app/op2_lite/app/
+# Copy op1_large application code
+COPY op1_large/ /app/op1_large/
 
 # Create json_worker directory and copy shared files
-RUN mkdir -p /app/op2_lite/app/json_worker && \
-    cp /app/shared/streaming_parser.py /app/op2_lite/app/json_worker/streaming_parser.py && \
-    cp /app/shared/gpu_guard.py /app/op2_lite/app/json_worker/gpu_guard.py
+RUN mkdir -p /app/op1_large/json_worker && \
+    cp /app/shared/streaming_parser.py /app/op1_large/json_worker/streaming_parser.py && \
+    cp /app/shared/gpu_guard.py /app/op1_large/json_worker/gpu_guard.py
 
 # Set Python path to include app directory
 ENV PYTHONPATH=/app:$PYTHONPATH
@@ -67,8 +66,8 @@ ARG VERSION
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.version=$VERSION \
-      org.label-schema.name="json-lite-op2" \
-      org.label-schema.description="JSON-Lite OP2 FastAPI Service"
+      org.label-schema.name="json-lite-op1" \
+      org.label-schema.description="JSON-Lite OP1 Large Processor"
 
 # Create output directory
 RUN mkdir -p /app/output && chown -R appuser:appuser /app
@@ -76,12 +75,10 @@ RUN mkdir -p /app/output && chown -R appuser:appuser /app
 # Switch to non-root user
 USER appuser
 
-# Expose port
-EXPOSE 8000
-
-# Health check for FastAPI
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD python -c "import sys; sys.exit(0)" || exit 1
 
-# Run the application
-CMD ["uvicorn", "op2_lite.app.simple_main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command (can be overridden)
+ENTRYPOINT ["python"]
+CMD ["/app/op1_large/manual_processor.py"]
