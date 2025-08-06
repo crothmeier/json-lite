@@ -85,7 +85,22 @@ clean:
 
 # Test targets
 test:
-	pytest -v --cov=shared --cov=op1_large --cov=op2_lite --cov-report=term-missing
+	@echo "Running complete test suite..."
+	pytest -v -x --cov=shared --cov=op1_large --cov=op2_lite --cov-report=term-missing
+
+test-all: clean
+	@echo "🧪 Running ALL tests (unit + integration + benchmark)"
+	@./run_all_tests.sh
+
+test-quick:
+	@echo "⚡ Running quick unit tests only"
+	@pytest tests/ -v -x -m "not slow and not integration" --tb=short
+
+test-fix:
+	@echo "🔧 Fixing code style issues"
+	@black shared/ op1_large/ op2_lite/ tests/
+	@isort shared/ op1_large/ op2_lite/ tests/
+	@ruff check --fix shared/ op1_large/ op2_lite/ tests/
 
 test-watch:
 	ptw -- -v

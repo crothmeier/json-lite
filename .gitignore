@@ -3,3 +3,9 @@ __pycache__/
 output/
 .env
 .venv/
+.coverage
+coverage.xml
+htmlcov/
+.benchmarks/
+.pytest_cache/
+.ruff_cache/
