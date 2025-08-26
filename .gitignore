@@ -9,3 +9,8 @@ htmlcov/
 .benchmarks/
 .pytest_cache/
 .ruff_cache/
+*.egg-info/
+htmlcov/
+coverage.xml
+__pycache__/
+*.pyc
