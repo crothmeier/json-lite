@@ -1,0 +1,80 @@
+# Systemd service file for Conversation Search Flask application
+# 
+# INSTALLATION INSTRUCTIONS:
+# -------------------------
+# 1. Copy this file to systemd directory:
+#    sudo cp conversation-search.service /etc/systemd/system/
+#
+# 2. Create log file with proper permissions:
+#    sudo touch /var/log/conversation-search.log
+#    sudo chown crathmene:crathmene /var/log/conversation-search.log
+#
+# 3. Reload systemd daemon:
+#    sudo systemctl daemon-reload
+#
+# 4. Enable service to start on boot:
+#    sudo systemctl enable conversation-search.service
+#
+# 5. Start the service:
+#    sudo systemctl start conversation-search.service
+#
+# 6. Check service status:
+#    sudo systemctl status conversation-search.service
+#
+# 7. View logs:
+#    sudo journalctl -u conversation-search.service -f
+#    or
+#    tail -f /var/log/conversation-search.log
+#
+# MANAGEMENT COMMANDS:
+# -------------------
+# Stop service:    sudo systemctl stop conversation-search.service
+# Restart service: sudo systemctl restart conversation-search.service
+# Disable service: sudo systemctl disable conversation-search.service
+# View full logs:  sudo journalctl -u conversation-search.service
+
+[Unit]
+Description=Conversation Search Flask Application
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=crathmene
+Group=crathmene
+WorkingDirectory=/home/crathmene/git/json-lite/web
+
+# Use the virtual environment Python
+Environment="PATH=/home/crathmene/git/json-lite/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="VIRTUAL_ENV=/home/crathmene/git/json-lite/venv"
+
+# Run Flask in production mode (not debug)
+Environment="FLASK_APP=app.py"
+Environment="FLASK_ENV=production"
+
+# Execute Flask using the venv Python with production wrapper
+ExecStart=/home/crathmene/git/json-lite/venv/bin/python /home/crathmene/git/json-lite/web/deployment/app-production.py
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=200
+StartLimitBurst=5
+
+# Logging
+StandardOutput=append:/var/log/conversation-search.log
+StandardError=append:/var/log/conversation-search.log
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/log
+
+# Resource limits (optional, adjust as needed)
+LimitNOFILE=1024
+LimitNPROC=64
+
+[Install]
+WantedBy=multi-user.target

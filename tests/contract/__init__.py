@@ -1,0 +1,1 @@
+"""Contract testing module for JSON processing pipeline."""

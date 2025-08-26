@@ -32,3 +32,51 @@ cd op2_lite
 docker compose up -d
 curl -F file=@sample.json http://localhost:8000/process/file
 ```
+
+## ChatGPT Export Extractor
+
+The JSON-Lite package includes a memory-efficient tool for extracting conversations from ChatGPT export files. It uses streaming JSON parsing to handle large export files (600MB+) while maintaining low memory usage (<120MB RSS).
+
+### Installation
+
+```bash
+pip install -e .[test]
+```
+
+### CLI Usage
+
+Extract all conversations to markdown files:
+```bash
+jsonlite-extract conversations.json -o output_dir --progress
+```
+
+Extract with options:
+```bash
+# Limit to first 10 conversations
+jsonlite-extract conversations.json -o output_dir --limit 10 --progress
+
+# Enable verbose output
+jsonlite-extract conversations.json -o output_dir --verbose --progress
+
+# Split conversations (default behavior)
+jsonlite-extract conversations.json -o output_dir --split-conversations
+```
+
+### Features
+
+- **Memory Efficient**: Streams large JSON files using ijson, keeping RSS under 120MB
+- **Markdown Output**: Each conversation is saved as a formatted markdown file
+- **Progress Tracking**: Optional progress display during processing
+- **Configurable**: Limit number of conversations, verbose mode, and more
+
+### Example Output
+
+Each conversation is saved as a markdown file with the format:
+```
+{conversation_id}_{sanitized_title}.md
+```
+
+The markdown includes:
+- Conversation title and metadata
+- Chronologically ordered messages
+- Clear role indicators (User/Assistant/System)

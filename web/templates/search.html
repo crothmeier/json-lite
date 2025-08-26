@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - {{ query }}{% endblock %}
+
+{% block extra_styles %}
+    <style>
+        .search-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .search-form-inline {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .search-form-inline input {
+            flex: 1;
+        }
+        .search-form-inline button {
+            width: auto;
+            padding: 12px 30px;
+        }
+        .search-info {
+            color: #666;
+            font-size: 14px;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .result-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .result-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .source-badge {
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .source-chatgpt {
+            background: #74aa9c;
+            color: white;
+        }
+        .source-claude {
+            background: #d4a574;
+            color: white;
+        }
+        .snippet {
+            color: #555;
+            line-height: 1.5;
+        }
+        .snippet strong {
+            background: #fff59d;
+            padding: 1px 3px;
+            border-radius: 2px;
+            color: #333;
+            font-weight: 600;
+        }
+        .pagination {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: center;
+        }
+        .pagination a, .pagination span {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 3px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #4CAF50;
+        }
+        .pagination .current {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        .pagination a:hover {
+            background: #f0f0f0;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .back-link {
+            margin-bottom: 20px;
+        }
+        .back-link a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="back-link">
+        <a href="/">← Back to Search</a>
+    </div>
+    
+    <div class="search-header">
+        <form action="/search" method="get" class="search-form-inline">
+            <input type="text" 
+                   name="q" 
+                   class="search-box" 
+                   value="{{ query }}" 
+                   placeholder="Search conversations..." 
+                   required>
+            <button type="submit" class="search-button">Search</button>
+        </form>
+        
+        <div class="search-info">
+            Found <strong>{{ total_results }}</strong> result{{ 's' if total_results != 1 else '' }} 
+            for "<strong>{{ query }}</strong>" 
+            ({{ search_time }} seconds)
+        </div>
+    </div>
+    
+    {% if results %}
+        <div class="results">
+            {% for result in results %}
+                <div class="result-item">
+                    <div class="result-title">{{ result.title|safe }}</div>
+                    <div class="result-meta">
+                        <span class="source-badge source-{{ result.source.lower() }}">
+                            {{ result.source }}
+                        </span>
+                        {% if result.created_at %}
+                            <span>{{ result.created_at }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="snippet">{{ result.snippet|safe }}</div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        {% if total_pages > 1 %}
+            <div class="pagination">
+                {% if current_page > 1 %}
+                    <a href="/search?q={{ query }}&page=1">First</a>
+                    <a href="/search?q={{ query }}&page={{ current_page - 1 }}">Previous</a>
+                {% endif %}
+                
+                {% for page_num in range(1, total_pages + 1) %}
+                    {% if page_num >= current_page - 2 and page_num <= current_page + 2 %}
+                        {% if page_num == current_page %}
+                            <span class="current">{{ page_num }}</span>
+                        {% else %}
+                            <a href="/search?q={{ query }}&page={{ page_num }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if current_page < total_pages %}
+                    <a href="/search?q={{ query }}&page={{ current_page + 1 }}">Next</a>
+                    <a href="/search?q={{ query }}&page={{ total_pages }}">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="no-results">
+            <p>No results found for your search.</p>
+            <p>Try different keywords or check your spelling.</p>
+        </div>
+    {% endif %}
+{% endblock %}
