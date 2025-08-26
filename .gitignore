@@ -15,3 +15,10 @@ coverage.xml
 __pycache__/
 *.pyc
 venv/
+*.pyc
+__pycache__/
+*.log
+venv/
+.env
+*.db
+*.db-journal
