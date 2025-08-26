@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Conversation Search - Home{% endblock %}
+
+{% block content %}
+    <h1>🔍 Conversation Search</h1>
+    
+    <form action="/search" method="get">
+        <input type="text" 
+               name="q" 
+               class="search-box" 
+               placeholder="Search conversations..." 
+               autofocus
+               required>
+        <button type="submit" class="search-button">Search</button>
+    </form>
+    
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+    
+    <div class="stats-link">
+        <a href="/stats">View Database Statistics</a>
+    </div>
+{% endblock %}
