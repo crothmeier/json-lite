@@ -1,1 +1,1 @@
-../../shared/streaming_parser.py
+../../json_lite/shared/streaming_parser.py

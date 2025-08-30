@@ -1,1 +1,1 @@
-../../shared/gpu_guard.py
+../../json_lite/shared/gpu_guard.py

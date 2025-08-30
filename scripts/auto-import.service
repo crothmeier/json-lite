@@ -1,0 +1,69 @@
+# Systemd service file for Auto Import Watcher
+# 
+# INSTALLATION INSTRUCTIONS:
+# -------------------------
+# 1. Copy this file to systemd directory:
+#    sudo cp auto-import.service /etc/systemd/system/
+#
+# 2. Reload systemd daemon:
+#    sudo systemctl daemon-reload
+#
+# 3. Enable service to start on boot:
+#    sudo systemctl enable auto-import.service
+#
+# 4. Start the service:
+#    sudo systemctl start auto-import.service
+#
+# 5. Check service status:
+#    sudo systemctl status auto-import.service
+#
+# 6. View logs:
+#    sudo journalctl -u auto-import.service -f
+#    or check the log file at:
+#    tail -f /home/crathmene/git/json-lite/scripts/auto_import.log
+#
+# MANAGEMENT COMMANDS:
+# -------------------
+# Stop service:    sudo systemctl stop auto-import.service
+# Restart service: sudo systemctl restart auto-import.service
+# Disable service: sudo systemctl disable auto-import.service
+
+[Unit]
+Description=Auto Import Watcher for ChatGPT and Claude Exports
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=crathmene
+Group=crathmene
+WorkingDirectory=/home/crathmene/git/json-lite
+
+# Use the virtual environment Python
+Environment="PATH=/home/crathmene/git/json-lite/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="VIRTUAL_ENV=/home/crathmene/git/json-lite/venv"
+Environment="PYTHONPATH=/home/crathmene/git/json-lite"
+
+# Execute the auto-import script
+ExecStart=/home/crathmene/git/json-lite/venv/bin/python /home/crathmene/git/json-lite/scripts/auto_import.py
+
+# Restart policy
+Restart=on-failure
+RestartSec=30
+StartLimitInterval=600
+StartLimitBurst=3
+
+# Logging (script handles its own logging to file)
+StandardOutput=journal
+StandardError=journal
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Allow read/write access to necessary directories
+ReadWritePaths=/home/crathmene/data
+ReadWritePaths=/home/crathmene/git/json-lite/scripts
+
+[Install]
+WantedBy=multi-user.target
