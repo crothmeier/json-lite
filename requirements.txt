@@ -1,1 +1,5 @@
-ijson>=3.2
+# Core JSON processing
+ijson==3.2.3
+
+# System monitoring (required for memory guards)
+psutil==5.9.8

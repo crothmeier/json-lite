@@ -1,0 +1,6 @@
+# Optional GPU monitoring support
+# Install with: pip install -r requirements-gpu.txt
+# This is only needed if you want to use GPU memory monitoring features
+
+# NVIDIA Management Library for GPU monitoring
+pynvml==11.5.0

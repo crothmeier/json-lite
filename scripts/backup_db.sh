@@ -34,9 +34,11 @@
 set -euo pipefail
 
 # Configuration
-SOURCE_DB="/home/crathmene/data/unified_conversations.db"
-BACKUP_DIR="/home/crathmene/backups/conversations"
-RETENTION_DAYS=7
+# These can be overridden via environment variables
+# Set DATABASE_PATH and DATA_DIR in your .env file or environment
+SOURCE_DB="${DATABASE_PATH:-${DATA_DIR:-$HOME/data}/unified_conversations.db}"
+BACKUP_DIR="${BACKUP_DIR:-${DATA_DIR:-$HOME/data}/../backups/conversations}"
+RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-7}"
 LOG_PREFIX="[$(date '+%Y-%m-%d %H:%M:%S')]"
 
 # For cron compatibility - use full paths

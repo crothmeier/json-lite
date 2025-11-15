@@ -6,6 +6,10 @@ import subprocess
 from pathlib import Path
 import json
 
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import config
+
 def test_pipeline(json_file):
     """Test format detection and import readiness."""
     
@@ -46,6 +50,22 @@ def test_pipeline(json_file):
     print("\n✓ File is ready for import to SQLite FTS5")
 
 if __name__ == "__main__":
-    # Test both files
-    test_pipeline("/home/crathmene/data/chatgpt-exports/conversations.json")
-    test_pipeline("/home/crathmene/data/claude-exports/extracted_claude/conversations_chatgpt_format.json")
+    # Test files from configured directories or command line arguments
+    if len(sys.argv) > 1:
+        # Use command line arguments
+        for json_file in sys.argv[1:]:
+            test_pipeline(json_file)
+    else:
+        # Use configured directories
+        chatgpt_file = config.CHATGPT_EXPORT_DIR / "conversations.json"
+        claude_file = config.CLAUDE_EXPORT_DIR / "extracted_claude" / "conversations_chatgpt_format.json"
+
+        if chatgpt_file.exists():
+            test_pipeline(str(chatgpt_file))
+        else:
+            print(f"Warning: ChatGPT export file not found: {chatgpt_file}")
+
+        if claude_file.exists():
+            test_pipeline(str(claude_file))
+        else:
+            print(f"Warning: Claude export file not found: {claude_file}")

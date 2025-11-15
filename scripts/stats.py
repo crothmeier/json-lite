@@ -11,9 +11,14 @@ import sys
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 from typing import Dict, List, Tuple, Optional
+from pathlib import Path
 
-# Configuration
-DATABASE_PATH = "/home/crathmene/data/unified_conversations.db"
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import config
+
+# Configuration from centralized config
+DATABASE_PATH = str(config.DATABASE_PATH)
 
 # ANSI color codes for terminal output
 class Colors:

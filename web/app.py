@@ -1,18 +1,25 @@
 import sqlite3
 import time
 import re
+import sys
+from pathlib import Path
 from flask import Flask, render_template, request, jsonify, make_response
 from flask_cors import CORS, cross_origin
 from math import ceil
 
+# Add parent directory to path to import config
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import config
+from web.auth import require_api_key
+
 app = Flask(__name__)
-DATABASE = '/home/crathmene/data/unified_conversations.db'
+DATABASE = str(config.DATABASE_PATH)
 RESULTS_PER_PAGE = 20
 
-# Configure CORS for localhost development
+# Configure CORS using centralized configuration
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:*", "http://127.0.0.1:*"],
+        "origins": config.get_cors_origins(),
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
@@ -154,6 +161,7 @@ def search():
 
 @app.route('/api/search')
 @cross_origin()
+@require_api_key
 def api_search():
     """JSON API endpoint for searching conversations"""
     start_time = time.time()
@@ -334,4 +342,19 @@ def stats():
     return jsonify(stats_data)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Validate configuration before starting
+    issues = config.validate()
+    if issues:
+        print("Configuration warnings/errors:")
+        for issue in issues:
+            print(f"  {issue}")
+        print()
+
+    # Ensure data directories exist
+    config.ensure_directories()
+
+    app.run(
+        debug=config.FLASK_DEBUG,
+        host=config.FLASK_HOST,
+        port=config.FLASK_PORT
+    )

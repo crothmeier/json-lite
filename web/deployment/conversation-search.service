@@ -1,27 +1,37 @@
 # Systemd service file for Conversation Search Flask application
-# 
+#
 # INSTALLATION INSTRUCTIONS:
 # -------------------------
-# 1. Copy this file to systemd directory:
+# 1. Edit this file and replace the following placeholders:
+#    - USER: Your username (default: $USER)
+#    - GROUP: Your group name (default: $USER)
+#    - /path/to/json-lite: Full path to json-lite repository
+#    - /path/to/venv: Full path to Python virtual environment (optional if using system Python)
+#
+# 2. Copy the edited file to systemd directory:
 #    sudo cp conversation-search.service /etc/systemd/system/
 #
-# 2. Create log file with proper permissions:
+# 3. Create log file with proper permissions:
 #    sudo touch /var/log/conversation-search.log
-#    sudo chown crathmene:crathmene /var/log/conversation-search.log
+#    sudo chown USER:GROUP /var/log/conversation-search.log
 #
-# 3. Reload systemd daemon:
+# 4. Create .env file with your configuration:
+#    cp /path/to/json-lite/.env.example /path/to/json-lite/.env
+#    Edit .env and set DATA_DIR, DATABASE_PATH, FLASK_HOST, FLASK_PORT, API_KEY, etc.
+#
+# 5. Reload systemd daemon:
 #    sudo systemctl daemon-reload
 #
-# 4. Enable service to start on boot:
+# 6. Enable service to start on boot:
 #    sudo systemctl enable conversation-search.service
 #
-# 5. Start the service:
+# 7. Start the service:
 #    sudo systemctl start conversation-search.service
 #
-# 6. Check service status:
+# 8. Check service status:
 #    sudo systemctl status conversation-search.service
 #
-# 7. View logs:
+# 9. View logs:
 #    sudo journalctl -u conversation-search.service -f
 #    or
 #    tail -f /var/log/conversation-search.log
@@ -40,20 +50,29 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=crathmene
-Group=crathmene
-WorkingDirectory=/home/crathmene/git/json-lite/web
+# REPLACE WITH YOUR USERNAME AND GROUP
+User=USER
+Group=GROUP
 
-# Use the virtual environment Python
-Environment="PATH=/home/crathmene/git/json-lite/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-Environment="VIRTUAL_ENV=/home/crathmene/git/json-lite/venv"
+# REPLACE WITH YOUR PATHS
+WorkingDirectory=/path/to/json-lite/web
+
+# Use the virtual environment Python (if using venv)
+# REPLACE WITH YOUR PATHS OR COMMENT OUT IF USING SYSTEM PYTHON
+Environment="PATH=/path/to/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="VIRTUAL_ENV=/path/to/venv"
 
 # Run Flask in production mode (not debug)
 Environment="FLASK_APP=app.py"
 Environment="FLASK_ENV=production"
 
+# Load environment variables from .env file
+# REPLACE WITH YOUR PATH
+EnvironmentFile=/path/to/json-lite/.env
+
 # Execute Flask using the venv Python with production wrapper
-ExecStart=/home/crathmene/git/json-lite/venv/bin/python /home/crathmene/git/json-lite/web/deployment/app-production.py
+# REPLACE WITH YOUR PATHS
+ExecStart=/path/to/venv/bin/python /path/to/json-lite/web/deployment/app-production.py
 
 # Restart policy
 Restart=on-failure
