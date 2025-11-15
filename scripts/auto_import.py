@@ -18,18 +18,20 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
-# Configuration
-CHATGPT_EXPORT_DIR = "/home/crathmene/data/chatgpt-exports"
-CLAUDE_EXPORT_DIR = "/home/crathmene/data/claude-exports"
-DATABASE_PATH = "/home/crathmene/data/unified_conversations.db"
-LOG_FILE = "/home/crathmene/git/json-lite/scripts/auto_import.log"
-CHECK_INTERVAL = 300  # 5 minutes in seconds
-STATE_FILE = "/home/crathmene/git/json-lite/scripts/.auto_import_state.json"
-
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import config
 from src.chatgpt_to_sqlite import ChatGPTImporter
 from src.claude_to_chatgpt import ClaudeConverter
+
+# Configuration from centralized config
+CHATGPT_EXPORT_DIR = str(config.CHATGPT_EXPORT_DIR)
+CLAUDE_EXPORT_DIR = str(config.CLAUDE_EXPORT_DIR)
+DATABASE_PATH = str(config.DATABASE_PATH)
+SCRIPT_DIR = Path(__file__).parent
+LOG_FILE = str(SCRIPT_DIR / "auto_import.log")
+CHECK_INTERVAL = 300  # 5 minutes in seconds
+STATE_FILE = str(SCRIPT_DIR / ".auto_import_state.json")
 
 # Setup logging
 logging.basicConfig(
